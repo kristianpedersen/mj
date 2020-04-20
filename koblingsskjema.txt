@@ -1,0 +1,12 @@
+Arduino 5V → TF Mini 5V
+Arduino GND → TF Mini GND
+
+Arduino 5V → Logic Converter HV
+Arduino 3.3V → Logic Converter LV
+Arduino GND → Logic Converter GND
+
+Arduino Pin 10 → Logic Converter HV4
+Arduino Pin 11 → Logic Converter HV1
+
+Logic Converter LV1 → TF Mini RX (hvit ledning)
+Logic Converter LV4 → TF Mini TX (gul ledning)
