@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		html,
+		body,
+		canvas {
+			min-height: 100%;
+		}
+
+		#status {
+			text-align: center;
+			font-size: 2em;
+			background-color: beige;
+			clear: both;
+			/* max-width: 150px; */
+			padding: 10px;
+			margin: 10px;
+			/* border-radius: 100px; */
+		}
+
+		body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+			font-family: Arial, Helvetica, sans-serif;
+		}
+
+		.entry {
+			float: left;
+			width: 50%;
+		}
+
+		li {
+			padding: 10px;
+		}
+
+		li:nth-child(2) {
+			background-color: lime;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="resultatkolonne">
+		<div class="entry">
+			<h1>Siste 5</h1>
+			<ul id="latest5">
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+
+		<div class="entry">
+			<h1>Topp 5</h1>
+			<ul id="top5">
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+		</div>
+	</div>
+	<div id="status">Måler ...</div>
+	<!-- <canvas></canvas> -->
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		const BUFFER_SIZE = 1000
+		const buffer = Array(BUFFER_SIZE).fill(0)
+		let previousBuffer = Array(BUFFER_SIZE).fill(0)
+		let bufferRange = 0
+		let previousBufferRange = 0
+
+		const socket = io()
+		const status = document.querySelector("#status")
+		const latest5 = document.querySelectorAll("#latest5 li")
+		console.log(latest5)
+		const top5 = document.querySelector("#top5")
+		const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2
+
+		let baseline = 0
+		let baselineMeasurements = []
+
+		let count = 0
+		let currentValue = 0
+		let previousValue = 0
+		let maxReading = 0
+
+		let jumps = {
+			all: [],
+			latest5: [],
+			top5: []
+		}
+
+		socket.on("dataFromNodeJS", function receiveFromNodeJS(data) {
+			// console.log("hei")
+			currentValue = Number(data)
+			count++
+			count %= Number.MAX_SAFE_INTEGER
+
+			if (baselineMeasurements.length <= BUFFER_SIZE) {
+				initialize(currentValue)
+			} else {
+				bufferRange = Math.max(...buffer) - Math.min(...buffer)
+				if (bufferRange > 10 && previousBufferRange <= 10) {
+					if (currentValue <= Math.min(...buffer)) {
+						jumps.all.push({
+							type: "jump",
+							dist: currentValue,
+							time: new Date()
+						})
+
+						console.count("jump")
+					} else {
+						jumps.all.push({
+							type: "land",
+							dist: currentValue,
+							time: new Date()
+						})
+
+						const l = jumps.all.length
+						if (jumps.all[l - 2] && jumps.all[l - 2].type === "jump") {
+							const jump = jumps.all[l - 2]
+							const land = jumps.all[l - 1]
+							jumps.latest5.push(jump.time - land.time)
+						}
+						console.count("land")
+					}
+				}
+
+				status.innerHTML = `${currentValue} (${bufferRange})`
+
+				buffer.push(currentValue)
+				if (buffer.length > BUFFER_SIZE) {
+					buffer.shift()
+				}
+			}
+
+			previousBufferRange = bufferRange
+			previousBuffer = buffer
+		})
+
+		function initialize(value) {
+			if (baselineMeasurements.length < 1000) {
+				baselineMeasurements.push(value)
+				status.innerHTML = "Måler ..."
+				status.style.width = map(baselineMeasurements.length, 0, BUFFER_SIZE, 0, innerWidth - 40) + "px"
+			}
+			else if (baselineMeasurements.length == 1000) {
+				baseline = Math.floor(
+					baselineMeasurements
+						.map(Number)
+						.reduce((a, b) => a + b) / 1000
+				)
+				baselineMeasurements.push(value)
+				status.innerHTML = "Måler ..."
+			}
+		}
+
+		document.addEventListener("click", () => console.table(jumps))
+	</script>
+</body>
+
+</html>

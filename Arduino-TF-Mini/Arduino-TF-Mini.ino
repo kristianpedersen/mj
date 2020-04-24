@@ -1,5 +1,5 @@
 #include <SoftwareSerial.h>
-#include "TFMini.h"
+#include <TFMini.h>
 
 SoftwareSerial mySerial(10, 11);
 TFMini tfmini;
@@ -9,8 +9,6 @@ void setup() {
   while (!Serial);
   mySerial.begin(TFMINI_BAUDRATE);
   tfmini.begin(&mySerial);
-
-  Serial.println("TF Mini Measurements");
 }
 
 void loop() {
