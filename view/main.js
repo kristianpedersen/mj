@@ -12,6 +12,10 @@ const gradient = c.createLinearGradient(0, 0, innerWidth, innerHeight)
 gradient.addColorStop(0, "hsl(250, 20%, 50%)")
 gradient.addColorStop(1, "hsl(250, 20%, 20%)")
 
+const socket = io()
+const THRESHOLD = 196
+const readingIndicatesJump = reading => (reading < 196)
+
 const starPositions = Array(1000).fill().map(n => {
 	return {
 		x: Math.random() * innerWidth,
@@ -32,17 +36,17 @@ let wasJumping = false
 const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
 
 drawBackground()
-loop()
+// loop()
 
-function loop() {
-	requestAnimationFrame(loop)
+socket.on("dataFromNodeJS", function loop(position) {
+	// requestAnimationFrame(loop)
 	// If the 10 last sensor readings are above the threshold, a jump has happened
 	buffer.unshift(position)
 	if (buffer.length > 10) {
 		buffer.pop()
 	}
 
-	const jumping = buffer.every(n => n > 100)
+	const jumping = buffer.every(readingIndicatesJump)
 
 	// Happens once when jump starts
 	if (jumping && !wasJumping) {
@@ -119,11 +123,11 @@ function loop() {
 	}
 
 	wasJumping = jumping
-}
-
-document.addEventListener("mousemove", function () {
-	position = innerHeight - event.clientY
 })
+
+// document.addEventListener("mousemove", function () {
+// 	position = innerHeight - event.clientY
+// })
 
 function drawBackground() {
 	c.fillStyle = gradient;
@@ -160,6 +164,7 @@ function plotLatestJump() {
 	const max = Math.max(...jump)
 	const r = innerWidth / jump.length / Math.PI
 
+	// Denne koden må justeres senere
 	latestJumps[0].forEach((reading, i, a) => {
 		const p = reading.position;
 		const x = map(i, 0, a.length, 0, innerWidth)
