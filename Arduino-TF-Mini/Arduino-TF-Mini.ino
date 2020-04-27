@@ -11,8 +11,7 @@ void setup() {
   tfmini.begin(&mySerial);
 }
 
-void loop() {
-  uint16_t dist = tfmini.getDistance();
-  Serial.println(dist);
+void loop() { 
+  Serial.println(tfmini.getDistance(););
   delay(25);
 }
