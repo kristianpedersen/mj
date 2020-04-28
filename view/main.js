@@ -13,8 +13,6 @@ gradient.addColorStop(0, "hsl(250, 20%, 50%)")
 gradient.addColorStop(1, "hsl(250, 20%, 20%)")
 
 const socket = io()
-const THRESHOLD = 196
-let test = undefined
 
 const starPositions = Array(1000).fill().map(n => {
 	return {
@@ -24,7 +22,6 @@ const starPositions = Array(1000).fill().map(n => {
 	}
 })
 
-let position = 0
 const allJumps = []
 const baselineReadings = []
 const buffer = []
@@ -47,8 +44,9 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 		baselineReadings.push(position)
 	}
 	else if (baselineReadings.length === 100) {
-		baseline = Math.floor(baselineReadings
-			.reduce((a, b) => a + b) / baselineReadings.length)
+		baseline = Math.floor(
+			baselineReadings.reduce((a, b) => a + b) / baselineReadings.length
+		)
 		baseline -= 30
 		baselineReadings.push(position)
 		console.log("Baseline = " + baseline);
