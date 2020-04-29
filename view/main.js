@@ -3,6 +3,7 @@ const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
 const topJumpsDOM = document.querySelectorAll(".jump#top li")
 const overlay = document.querySelector("#overlay")
 
+/*
 const canvas = document.querySelector("canvas")
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -11,6 +12,7 @@ const c = canvas.getContext("2d")
 const gradient = c.createLinearGradient(0, 0, innerWidth, innerHeight)
 gradient.addColorStop(0, "hsl(250, 20%, 50%)")
 gradient.addColorStop(1, "hsl(250, 20%, 20%)")
+*/
 
 const socket = io()
 
@@ -18,7 +20,7 @@ const starPositions = Array(1000).fill().map(n => {
 	return {
 		x: Math.random() * innerWidth,
 		y: Math.random() * innerHeight,
-		radius: Math.random()
+		radius: Math.random() * 2
 	}
 })
 
@@ -28,30 +30,33 @@ const buffer = []
 const latestJumps = []
 let topJumps = []
 let thisJump = []
-
+let baseline = 0
 let jumping = false
 let wasJumping = false
+let previousDate = new Date()
 
 const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
 
-drawBackground()
+//drawBackground()
 // loop()
+
+const programStart = new Date()
 
 socket.on("dataFromNodeJS", function getDistance(position) {
 	position = Number(position)
 
-	if (baselineReadings.length < 100) {
+	if (baselineReadings.length < 100 && !isNaN(position) && new Date() - programStart > 1000) {
 		baselineReadings.push(position)
 	}
 	else if (baselineReadings.length === 100) {
 		baseline = Math.floor(
-			baselineReadings.reduce((a, b) => a + b) / baselineReadings.length
+			baselineReadings.reduce((a, b) => a + b, 0) / baselineReadings.length
 		)
-		baseline -= 30
+		// baseline -= 30
 		baselineReadings.push(position)
 		console.log("Baseline = " + baseline);
 	}
-	else {
+	else if (baselineReadings.length > 100) {
 		// Buffer is a fixed length array with the n latest readings
 		buffer.unshift(position)
 		if (buffer.length > 10) {
@@ -59,7 +64,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 		}
 
 		// If the 10 last sensor readings are above the threshold, a jump has happened
-		const jumping = buffer.every(reading => reading < baseline)
+		const jumping = buffer.every(reading => reading < baseline - 30)
 
 		// Happens once when jump starts
 		if (jumping && !wasJumping) {
@@ -90,6 +95,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 			}
 
 			// Update user interface to show latest jump
+			latestJumps[0]
 			blink(latestJumpsDOM[0])
 			latestJumpsDOM.forEach((li, i) => {
 				if (latestJumps[i] !== undefined) {
@@ -104,7 +110,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 
 					// const timeInAir = lastReading.time - j[0].time
 					const allReadings = thisJump.map(jump => jump.distance)
-					const thisJumpsHighestReading = Math.max(...allReadings)
+					const thisJumpsHighestReading = Math.max(...allReadings) + 30
 
 					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
 				}
@@ -135,7 +141,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 					}
 
 					const allReadings = thisJump.map(jump => jump.distance)
-					const thisJumpsHighestReading = Math.max(...allReadings)
+					const thisJumpsHighestReading = Math.max(...allReadings) + 30
 
 					// const timeInAir = lastReading.time - thisJump[0].time
 					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
@@ -146,29 +152,34 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 			})
 
 			// A graph is drawn when user lands
-			drawBackground()
-			plotLatestJump()
+			// drawBackground()
+			// plotLatestJump()
 		}
 
 		wasJumping = jumping
 	}
 })
 
+/*
 function drawBackground() {
 	c.fillStyle = gradient;
 	c.fillRect(0, 0, innerWidth, innerHeight)
 
-	starPositions.forEach(star => {
-		c.fillStyle = "white"
+	starPositions.forEach((star, index) => {
+		c.fillStyle = [
+			"white",
+			"hsl(200, 50%, 70%)",
+			"hsl(210, 50%, 80%)", 
+			"hsl(220, 50%, 90%)", 
+			"hsl(20, 50%, 80%)", 
+		][index % 5]
 		c.beginPath()
 		c.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
 		c.closePath()
 		c.fill()
 	})
-
-	c.fillStyle = "beige"
-	c.fillRect(0, innerHeight * 0.75, innerWidth, innerHeight)
 }
+*/
 
 function blink(listItem) {
 	// 5 blink ser bra ut
@@ -183,7 +194,11 @@ function blink(listItem) {
 	}
 }
 
+/*
 function plotLatestJump() {
+	c.fillStyle = "beige"
+	c.fillRect(0, innerHeight * 0.75, innerWidth, innerHeight)
+	
 	const jump = latestJumps[0].map(jump => jump.distance)
 	const min = Math.min(...jump)
 	const max = Math.max(...jump)
@@ -202,4 +217,4 @@ function plotLatestJump() {
 		c.closePath()
 		c.fill()
 	})
-}
+}*/
