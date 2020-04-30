@@ -21,7 +21,7 @@ const port = new SerialPort(COM_PORT, { baudRate: 115200 })
 const parser = new Readline()
 port.pipe(parser)
 console.log("http://localhost:3000")
-exec("chromium-browser --start-fullscreen http://localhost:3000")
+exec("chromium-browser --kiosk --app=http://localhost:3000")
 
 let count = 0
 
