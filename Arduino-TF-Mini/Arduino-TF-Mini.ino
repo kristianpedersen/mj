@@ -12,6 +12,6 @@ void setup() {
 }
 
 void loop() { 
-  Serial.println(tfmini.getDistance(););
+  Serial.println(tfmini.getDistance());
   delay(25);
 }

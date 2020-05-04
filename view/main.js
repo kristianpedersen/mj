@@ -1,3 +1,4 @@
+const leggtil = 10
 // const status = document.querySelector("p#status")
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
 const topJumpsDOM = document.querySelectorAll(".jump#top li")
@@ -74,7 +75,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 
 		// Is called repeatedly while user is in the air
 		if (jumping && wasJumping) {
-			if (thisJump.length < 10000) {
+			if (thisJump.length < 1000000) {
 				const reading = {
 					distance: baseline - position,
 					time: new Date()
@@ -110,7 +111,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 
 					// const timeInAir = lastReading.time - j[0].time
 					const allReadings = thisJump.map(jump => jump.distance)
-					const thisJumpsHighestReading = Math.max(...allReadings) + 30
+					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
 					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
 				}
@@ -141,7 +142,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 					}
 
 					const allReadings = thisJump.map(jump => jump.distance)
-					const thisJumpsHighestReading = Math.max(...allReadings) + 30
+					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
 					// const timeInAir = lastReading.time - thisJump[0].time
 					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
