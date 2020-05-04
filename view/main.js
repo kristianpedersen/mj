@@ -1,46 +1,22 @@
-const leggtil = 10
-// const status = document.querySelector("p#status")
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
-const topJumpsDOM = document.querySelectorAll(".jump#top li")
+const leggtil = 10
 const overlay = document.querySelector("#overlay")
-
-/*
-const canvas = document.querySelector("canvas")
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-const c = canvas.getContext("2d")
-
-const gradient = c.createLinearGradient(0, 0, innerWidth, innerHeight)
-gradient.addColorStop(0, "hsl(250, 20%, 50%)")
-gradient.addColorStop(1, "hsl(250, 20%, 20%)")
-*/
-
 const socket = io()
-
-const starPositions = Array(1000).fill().map(n => {
-	return {
-		x: Math.random() * innerWidth,
-		y: Math.random() * innerHeight,
-		radius: Math.random() * 2
-	}
-})
+const topJumpsDOM = document.querySelectorAll(".jump#top li")
 
 const allJumps = []
 const baselineReadings = []
 const buffer = []
 const latestJumps = []
-let topJumps = []
-let thisJump = []
+
 let baseline = 0
 let jumping = false
-let wasJumping = false
 let previousDate = new Date()
+let thisJump = []
+let topJumps = []
+let wasJumping = false
 
 const map = (value, x1, y1, x2, y2) => (value - x1) * (y2 - x2) / (y1 - x1) + x2;
-
-//drawBackground()
-// loop()
-
 const programStart = new Date()
 
 socket.on("dataFromNodeJS", function getDistance(position) {
@@ -53,7 +29,6 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 		baseline = Math.floor(
 			baselineReadings.reduce((a, b) => a + b, 0) / baselineReadings.length
 		)
-		// baseline -= 30
 		baselineReadings.push(position)
 		console.log("Baseline = " + baseline);
 	}
@@ -109,7 +84,6 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 						minutes = "0" + minutes
 					}
 
-					// const timeInAir = lastReading.time - j[0].time
 					const allReadings = thisJump.map(jump => jump.distance)
 					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
@@ -123,8 +97,6 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 				const allB = b.map(jump => jump.distance)
 				const aMax = Math.max(...allA)
 				const bMax = Math.max(...allB)
-				// const bJump = b.map(jump => jump.distance)
-				// const bJump = b[b.length - 1].height - b[0].height
 				return bMax - aMax
 			}).slice(0, 5)
 
@@ -144,43 +116,17 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 					const allReadings = thisJump.map(jump => jump.distance)
 					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
-					// const timeInAir = lastReading.time - thisJump[0].time
 					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
 					if (topJumps[i] === latestJumps[0]) {
 						blink(li)
 					}
 				}
 			})
-
-			// A graph is drawn when user lands
-			// drawBackground()
-			// plotLatestJump()
 		}
 
 		wasJumping = jumping
 	}
 })
-
-/*
-function drawBackground() {
-	c.fillStyle = gradient;
-	c.fillRect(0, 0, innerWidth, innerHeight)
-
-	starPositions.forEach((star, index) => {
-		c.fillStyle = [
-			"white",
-			"hsl(200, 50%, 70%)",
-			"hsl(210, 50%, 80%)", 
-			"hsl(220, 50%, 90%)", 
-			"hsl(20, 50%, 80%)", 
-		][index % 5]
-		c.beginPath()
-		c.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
-		c.closePath()
-		c.fill()
-	})
-}
-*/
 
 function blink(listItem) {
 	// 5 blink ser bra ut
@@ -194,28 +140,3 @@ function blink(listItem) {
 		}, blinkIndex * 250)
 	}
 }
-
-/*
-function plotLatestJump() {
-	c.fillStyle = "beige"
-	c.fillRect(0, innerHeight * 0.75, innerWidth, innerHeight)
-	
-	const jump = latestJumps[0].map(jump => jump.distance)
-	const min = Math.min(...jump)
-	const max = Math.max(...jump)
-	const r = innerWidth / jump.length / Math.PI
-
-	// Denne koden må justeres senere
-	latestJumps[0].forEach((reading, i, a) => {
-		const p = reading.distance;
-		const x = map(i, 0, a.length, 0, innerWidth)
-		const y = map(p, min, max, innerHeight - 10, innerHeight - 100)
-		const h = map(i, 0, a.length, 0, 360)
-
-		c.fillStyle = `hsl(${Math.floor(h)}, 50%, 50%)`
-		c.beginPath()
-		c.arc(x, y, r, 0, Math.PI * 2)
-		c.closePath()
-		c.fill()
-	})
-}*/
