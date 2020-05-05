@@ -1,3 +1,5 @@
+[...document.querySelectorAll("li")].forEach(li => li.innerHTML = "&nbsp;")
+
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
 const leggtil = 10
 const overlay = document.querySelector("#overlay")
