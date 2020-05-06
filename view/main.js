@@ -1,5 +1,5 @@
 [...document.querySelectorAll("li")].forEach(li => {
-	li.innerHTML = `${Math.floor(Math.random() * 300)} cm`
+	li.innerHTML = `&nbsp;`
 })
 
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
