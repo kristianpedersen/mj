@@ -1,7 +1,7 @@
-[...document.querySelectorAll("li")].forEach(li => li.innerHTML = "&nbsp;")
+[...document.querySelectorAll("li")].forEach(li => li.innerHTML = "250 cm")
 
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
-const leggtil = 10
+const leggtil = 0
 const overlay = document.querySelector("#overlay")
 const socket = io()
 const topJumpsDOM = document.querySelectorAll(".jump#top li")
@@ -89,7 +89,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 					const allReadings = thisJump.map(jump => jump.distance)
 					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
-					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
+					li.innerHTML = `${thisJumpsHighestReading} cm`
 				}
 			})
 
@@ -118,7 +118,7 @@ socket.on("dataFromNodeJS", function getDistance(position) {
 					const allReadings = thisJump.map(jump => jump.distance)
 					const thisJumpsHighestReading = Math.max(...allReadings) + leggtil
 
-					li.innerHTML = `(${hours}:${minutes}) ${thisJumpsHighestReading} cm`
+					li.innerHTML = `${thisJumpsHighestReading} cm`
 					if (topJumps[i] === latestJumps[0]) {
 						blink(li)
 					}
