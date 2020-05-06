@@ -1,4 +1,6 @@
-[...document.querySelectorAll("li")].forEach(li => li.innerHTML = "250 cm")
+[...document.querySelectorAll("li")].forEach(li => {
+	li.innerHTML = `${Math.floor(Math.random() * 300)} cm`
+})
 
 const latestJumpsDOM = document.querySelectorAll(".jump#latest li")
 const leggtil = 0
